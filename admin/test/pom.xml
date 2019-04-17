@@ -18,7 +18,7 @@
     <parent>
         <artifactId>replication-admin</artifactId>
         <groupId>replication</groupId>
-        <version>0.1.5-SNAPSHOT</version>
+        <version>0.2.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <name>Replication :: Admin Console :: Test</name>
@@ -29,13 +29,13 @@
         <dependency>
             <groupId>replication</groupId>
             <artifactId>replication-api</artifactId>
-            <version>0.1.5-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>replication</groupId>
             <artifactId>replication-api-impl</artifactId>
-            <version>0.1.5-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

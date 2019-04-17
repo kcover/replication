@@ -13,9 +13,7 @@
  */
 package org.codice.ditto.replication.admin.test;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import org.codice.ditto.replication.api.modern.ReplicationSite;
+import org.codice.ditto.replication.api.data.ReplicationSite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +25,11 @@ public class ReplicationSiteImpl implements ReplicationSite {
 
   private String name;
 
-  private URL url;
+  private String url;
 
-  public ReplicationSiteImpl(String id, String name, URL url) {
+  private int version;
+
+  public ReplicationSiteImpl(String id, String name, String url) {
     this.id = id;
     this.name = name;
     this.url = url;
@@ -45,6 +45,15 @@ public class ReplicationSiteImpl implements ReplicationSite {
   }
 
   @Override
+  public int getVersion() {
+    return version;
+  }
+
+  public void setVersion(int version) {
+    this.version = version;
+  }
+
+  @Override
   public String getName() {
     return name;
   }
@@ -54,19 +63,11 @@ public class ReplicationSiteImpl implements ReplicationSite {
   }
 
   @Override
-  public URL getUrl() {
+  public String getUrl() {
     return url;
   }
 
-  public void setUrl(URL url) {
+  public void setUrl(String url) {
     this.url = url;
-  }
-
-  public void setUrl(String url){
-    try {
-      this.url = new URL(url);
-    } catch (MalformedURLException e) {
-      LOGGER.error("Tried to make URL object from invalid URL: {}", url);
-    }
   }
 }

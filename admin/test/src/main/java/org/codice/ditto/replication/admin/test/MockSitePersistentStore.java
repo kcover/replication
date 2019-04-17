@@ -20,12 +20,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.codice.ditto.replication.api.modern.ReplicationSite;
-import org.codice.ditto.replication.api.modern.ReplicationSitePersistentStore;
+import org.codice.ditto.replication.api.data.ReplicationSite;
+import org.codice.ditto.replication.api.persistence.SiteManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MockSitePersistentStore implements ReplicationSitePersistentStore {
+public class MockSitePersistentStore implements SiteManager {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MockSitePersistentStore.class);
 
@@ -40,14 +40,7 @@ public class MockSitePersistentStore implements ReplicationSitePersistentStore {
   }
 
   private ReplicationSite createTestSite(String id, String name, String urlString) {
-    URL url;
-    try {
-      url = new URL(urlString);
-    } catch (MalformedURLException e) {
-      LOGGER.error("Malformed URL {} in MockSitePersistentStore. Saving URL as null.", urlString);
-      return new ReplicationSiteImpl(id, name, null);
-    }
-    return new ReplicationSiteImpl(id, name, url);
+    return new ReplicationSiteImpl(id, name, urlString);
   }
 
   @Override

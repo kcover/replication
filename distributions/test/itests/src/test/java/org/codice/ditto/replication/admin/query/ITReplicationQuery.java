@@ -20,14 +20,15 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 
 import java.net.MalformedURLException;
-import org.codice.ditto.replication.admin.test.QueryHelper;
 import org.codice.ddf.dominion.commons.options.DDFCommonOptions;
+import org.codice.ditto.replication.admin.test.queryHelper;
 import org.codice.ditto.replication.dominion.options.ReplicationOptions;
 import org.codice.dominion.Dominion;
 import org.codice.dominion.interpolate.Interpolate;
 import org.codice.junit.TestDelimiter;
 import org.codice.pax.exam.junit.ConfigurationAdmin;
 import org.codice.pax.exam.junit.ServiceAdmin;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -47,12 +48,20 @@ public class ITReplicationQuery {
 
   private static final String URL = "https://localhost:9999";
 
+  private queryHelper queryHelper;
+
+  @BeforeClass
+  public void before() {
+    queryHelper = new queryHelper(GRAPHQL_ENDPOINT);
+  }
+
   // ----------------------------------- Site Tests -----------------------------------//
 
   @Test
   public void createReplicationSite() throws MalformedURLException {
     String name = "create";
-    QueryHelper.performCreateSiteQuery(name, URL)
+    queryHelper
+        .performCreateSiteQuery(name, URL)
         .body("data.createReplicationSite.name", is(name))
         .body("data.createReplicationSite.address.url", is(URL))
         .body("data.createReplicationSite.address.host.hostname", is("localhost"))
@@ -63,7 +72,8 @@ public class ITReplicationQuery {
   @Test
   public void createReplicationSiteWithHostnameAndPort() {
     String name = "createHostnameAndPort";
-    QueryHelper.performQuery(
+    queryHelper
+        .performQuery(
             String.format(
                 "{\"query\":\"mutation{ createReplicationSite(name: \\\"%s\\\", address: { host: { hostname: \\\"localhost\\\" port: 9999 }}){ id name address{ host{ hostname port } url }}}\"}",
                 name))
@@ -76,18 +86,20 @@ public class ITReplicationQuery {
 
   @Test
   public void createReplicationSiteWithEmptyName() {
-    QueryHelper.performCreateSiteQuery("", URL).body("errors.message", hasItem("EMPTY_FIELD"));
+    queryHelper.performCreateSiteQuery("", URL).body("errors.message", hasItem("EMPTY_FIELD"));
   }
 
   @Test
   public void createReplicationSiteWithInvalidUrl() {
-    QueryHelper.performCreateSiteQuery("badUrl", "localhost:9999")
+    queryHelper
+        .performCreateSiteQuery("badUrl", "localhost:9999")
         .body("errors.message", hasItem("INVALID_URL"));
   }
 
   @Test
   public void createReplicationSiteWithIntegerName() {
-    QueryHelper.performQuery(
+    queryHelper
+        .performQuery(
             String.format(
                 "{\"query\":\"mutation{ createReplicationSite(name: 25, address: { url: \\\"%s\\\"}){ id name address{ host{ hostname port } url }}}\"}",
                 URL))
@@ -96,12 +108,13 @@ public class ITReplicationQuery {
 
   @Test
   public void getReplicationSites() {
-    QueryHelper.performGetSitesQuery().body("errors", is(nullValue()));
+    queryHelper.performGetSitesQuery().body("errors", is(nullValue()));
   }
 
   @Test
   public void updateReplicationSite() {
-    QueryHelper.performUpdateSiteQuery("siteId", "newName", URL)
+    queryHelper
+        .performUpdateSiteQuery("siteId", "newName", URL)
         .body("errors", is(nullValue())); // what we currently get when a
     // site with the given ID
     // doesn't exist
@@ -109,41 +122,42 @@ public class ITReplicationQuery {
 
   @Test
   public void deleteReplicationSite() {
-    assertThat(QueryHelper.deleteSite("fakeId"), is(false));
+    assertThat(queryHelper.deleteSite("fakeId"), is(false));
   }
 
   // ----------------------------------- Replication Tests -----------------------------------//
 
-  //TODO: make these more rigorous when Repsync persistence functionality is implemented
+  // TODO: make these more rigorous when Repsync persistence functionality is implemented
   @Test
   public void createRepsync() {
-    QueryHelper.performCreateRepsyncQuery("name", "sourceid", "destinationid", "filter")
+    queryHelper
+        .performCreateRepsyncQuery("name", "sourceid", "destinationid", "filter")
         .body("data.createRepsync.name", is("name"));
   }
 
   @Test
   public void updateRepsync() {
-    QueryHelper.performUpdateRepsyncQuery("id", "name", "sourceid", "destinationid", "filter")
+    queryHelper
+        .performUpdateRepsyncQuery("id", "name", "sourceid", "destinationid", "filter")
         .body("data.updateRepsync.name", is("name"));
   }
 
   @Test
   public void deleteRepsync() {
-    QueryHelper.performDeleteRepsyncQuery("id")
-    .body("data.deleteRepsync", is(true));
+    queryHelper.performDeleteRepsyncQuery("id").body("data.deleteRepsync", is(true));
   }
 
   @Test
   public void getRepsyncs() {
-    QueryHelper.performGetRepsyncsQuery()
-    .body("errors", is(nullValue()));
+    queryHelper.performGetRepsyncsQuery().body("errors", is(nullValue()));
   }
 
   // ----------------------------------- General Tests -----------------------------------//
 
   @Test
   public void undefinedFieldInQuery() {
-    QueryHelper.performQuery("{\"query\":\"mutation{ unknownField }\"}")
+    queryHelper
+        .performQuery("{\"query\":\"mutation{ unknownField }\"}")
         .body("errors.errorType", hasItem("ValidationError"));
   }
 }
