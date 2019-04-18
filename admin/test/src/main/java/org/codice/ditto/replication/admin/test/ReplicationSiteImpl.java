@@ -13,13 +13,10 @@
  */
 package org.codice.ditto.replication.admin.test;
 
+import java.util.UUID;
 import org.codice.ditto.replication.api.data.ReplicationSite;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ReplicationSiteImpl implements ReplicationSite {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(ReplicationSiteImpl.class);
 
   private String id;
 
@@ -27,10 +24,10 @@ public class ReplicationSiteImpl implements ReplicationSite {
 
   private String url;
 
-  private int version;
+  public ReplicationSiteImpl() {}
 
-  public ReplicationSiteImpl(String id, String name, String url) {
-    this.id = id;
+  public ReplicationSiteImpl(String name, String url) {
+    this.id = UUID.randomUUID().toString();
     this.name = name;
     this.url = url;
   }
@@ -40,24 +37,22 @@ public class ReplicationSiteImpl implements ReplicationSite {
     return id;
   }
 
+  @Override
   public void setId(String id) {
     this.id = id;
   }
 
   @Override
   public int getVersion() {
-    return version;
-  }
-
-  public void setVersion(int version) {
-    this.version = version;
-  }
+    return 1;
+  } // the api isn't concerned with the version
 
   @Override
   public String getName() {
     return name;
   }
 
+  @Override
   public void setName(String name) {
     this.name = name;
   }
@@ -67,6 +62,7 @@ public class ReplicationSiteImpl implements ReplicationSite {
     return url;
   }
 
+  @Override
   public void setUrl(String url) {
     this.url = url;
   }

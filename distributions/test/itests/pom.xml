@@ -79,7 +79,7 @@
         <dependency>
             <groupId>replication</groupId>
             <artifactId>replication-admin-test</artifactId>
-            <version>0.1.5-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

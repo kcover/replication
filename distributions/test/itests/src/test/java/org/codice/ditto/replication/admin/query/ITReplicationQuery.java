@@ -21,11 +21,13 @@ import static org.hamcrest.core.Is.is;
 
 import java.net.MalformedURLException;
 import org.codice.ddf.dominion.commons.options.DDFCommonOptions;
+import org.codice.ddf.dominion.options.DDFOptions;
 import org.codice.ditto.replication.admin.test.queryHelper;
-import org.codice.ditto.replication.dominion.options.ReplicationOptions;
 import org.codice.dominion.Dominion;
 import org.codice.dominion.interpolate.Interpolate;
+import org.codice.dominion.options.karaf.KarafOptions;
 import org.codice.junit.TestDelimiter;
+import org.codice.maven.MavenUrl;
 import org.codice.pax.exam.junit.ConfigurationAdmin;
 import org.codice.pax.exam.junit.ServiceAdmin;
 import org.junit.BeforeClass;
@@ -36,7 +38,18 @@ import org.junit.runner.RunWith;
 @DDFCommonOptions.ConfigureDebugging
 @DDFCommonOptions.ConfigurePorts
 @DDFCommonOptions.ConfigureLogging
-@ReplicationOptions.Install
+@DDFOptions.InstallDistribution(solr = true)
+@KarafOptions.InstallFeature(
+  repository =
+      @MavenUrl(
+        groupId = "replication.distributions.features",
+        artifactId = "test-utilities",
+        version = MavenUrl.AS_PROJECT,
+        type = "xml",
+        classifier = "features"
+      ),
+  boot = false
+)
 @TestDelimiter(stdout = true, elapsed = true)
 @ServiceAdmin
 @ConfigurationAdmin
@@ -48,10 +61,10 @@ public class ITReplicationQuery {
 
   private static final String URL = "https://localhost:9999";
 
-  private queryHelper queryHelper;
+  private static queryHelper queryHelper;
 
   @BeforeClass
-  public void before() {
+  public static void before() {
     queryHelper = new queryHelper(GRAPHQL_ENDPOINT);
   }
 

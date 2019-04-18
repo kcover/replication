@@ -22,7 +22,6 @@ import com.jayway.restassured.specification.RequestSpecification;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -210,7 +209,9 @@ public class queryHelper {
     String id = json.getString("id");
     String name = json.getString("name");
     String urlString = json.getString("address.url");
-    return new ReplicationSiteImpl(id, name, urlString);
+    ReplicationSite site = new ReplicationSiteImpl(name, urlString);
+    site.setId(id);
+    return site;
   }
 
   private String getResourceAsString(String resourcePath) {
