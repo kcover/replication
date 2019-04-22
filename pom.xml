@@ -30,7 +30,7 @@
 
         <admin-query.version>1.2.7</admin-query.version>
         <ddf.support.version>2.3.12</ddf.support.version>
-        <ddf.version>2.13.8</ddf.version>
+        <ddf.version>2.13.9-SNAPSHOT</ddf.version>
         <codice-maven.version>0.2</codice-maven.version>
         <codice-test.version>0.9-SNAPSHOT</codice-test.version>
 
@@ -39,7 +39,7 @@
         <surefire.version>2.20.1</surefire.version>
         <karaf.version>4.2.1</karaf.version>
         <karaf.plugin.version>4.2.0</karaf.plugin.version>
-
+        <javax.ws.rs.version>2.1</javax.ws.rs.version>
         <jruby.version>9.0.4.0</jruby.version>
         <asciidoctorj.version>1.5.6</asciidoctorj.version>
         <asciidoctorj.diagram.version>1.5.4.1</asciidoctorj.diagram.version>

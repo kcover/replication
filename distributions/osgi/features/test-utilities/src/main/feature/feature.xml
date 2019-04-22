@@ -17,12 +17,15 @@
         xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.4.0 http://karaf.apache.org/xmlns/features/v1.4.0">
 
     <repository>mvn:org.codice.ddf.admin.query/admin-query-app/${admin-query.version}/xml/features</repository>
+    <repository>mvn:ddf.catalog.core/catalog-core-api/${ddf.version}/xml/feature</repository>
+    <repository>mvn:ddf.features/solr/${ddf.version}/xml/features</repository>
 
     <feature name="replicationApiTest" version="${project.version}"
             description="Provides capabilities for testing the replication api">
+        <feature>catalog-core-api-only</feature>
+        <feature>persistence-core-api</feature>
         <feature>admin-query-graphql</feature>
         <bundle>mvn:replication/replication-api/${project.version}</bundle>
-        <bundle>mvn:replication/replication-api-impl/${project.version}</bundle>
         <bundle>mvn:replication/replication-admin-test/${project.version}</bundle>
         <bundle>mvn:replication/replication-admin-query/${project.version}</bundle>
     </feature>

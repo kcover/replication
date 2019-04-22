@@ -30,13 +30,6 @@
             <groupId>replication</groupId>
             <artifactId>replication-api</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>replication</groupId>
-            <artifactId>replication-api-impl</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>

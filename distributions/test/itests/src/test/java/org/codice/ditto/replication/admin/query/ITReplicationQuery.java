@@ -25,6 +25,8 @@ import org.codice.ddf.dominion.options.DDFOptions;
 import org.codice.ditto.replication.admin.test.queryHelper;
 import org.codice.dominion.Dominion;
 import org.codice.dominion.interpolate.Interpolate;
+import org.codice.dominion.options.Options;
+import org.codice.dominion.options.Permission;
 import org.codice.dominion.options.karaf.KarafOptions;
 import org.codice.junit.TestDelimiter;
 import org.codice.maven.MavenUrl;
@@ -39,6 +41,9 @@ import org.junit.runner.RunWith;
 @DDFCommonOptions.ConfigurePorts
 @DDFCommonOptions.ConfigureLogging
 @DDFOptions.InstallDistribution(solr = true)
+@Options.GrantPermission(
+  permission = {@Permission(clazz = java.lang.RuntimePermission.class, name = "createClassLoader")}
+)
 @KarafOptions.InstallFeature(
   repository =
       @MavenUrl(
@@ -47,8 +52,7 @@ import org.junit.runner.RunWith;
         version = MavenUrl.AS_PROJECT,
         type = "xml",
         classifier = "features"
-      ),
-  boot = false
+      )
 )
 @TestDelimiter(stdout = true, elapsed = true)
 @ServiceAdmin
