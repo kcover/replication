@@ -62,8 +62,9 @@ import org.slf4j.LoggerFactory;
  */
 public class CswResponseExceptionMapper implements ResponseExceptionMapper<CswException> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(
-      org.codice.ddf.spatial.ogc.csw.catalog.common.source.CswResponseExceptionMapper.class);
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(
+          org.codice.ddf.spatial.ogc.csw.catalog.common.source.CswResponseExceptionMapper.class);
 
   @Override
   public CswException fromResponse(Response response) {

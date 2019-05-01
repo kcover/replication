@@ -23,6 +23,7 @@ import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -94,9 +95,13 @@ public class CswRecordConverter implements Converter {
     HierarchicalStreamReader reader =
         XStreamAttributeCopier.copyXml(hreader, metadataWriter, namespaceMap);
 
+    Map<String, Object> metadataMap = new HashMap<>();
+
     Date modified = null;
 
-    String id = reader.getAttribute("gml:id");
+    metadataMap.put("id", reader.getAttribute("gml:id"));
+    // If we want to grab the type we will have to do so below. As you move through the child nodes
+    // check if the node name is type and save the value.
 
     while (reader.hasMoreChildren()) {
       reader.moveDown();
@@ -110,17 +115,20 @@ public class CswRecordConverter implements Converter {
       String value = reader.getValue();
       reader.moveUp();
       LOGGER.debug("attribute name: {} value: {}.", attributeName, value);
+      // How does this behave with multi-valued attributes?
       if (StringUtils.isNotEmpty(attributeName) && StringUtils.isNotEmpty(value)) {
-        if (attributeName.equals("metacard.modified")) {
-          modified = convertToDate(value);
-        }
+        metadataMap.put(attributeName, value);
       }
-      /* Set Content Type for backwards compatibility */
 
       reader.moveUp();
     }
 
     /* Save entire CSW Record XML as the metacard's metadata string */
-    return new MetadataImpl(metadataWriter.toString(), Metadata.class, id, modified);
+    return new MetadataImpl(
+        metadataWriter.toString(),
+        Metadata.class,
+        (String) metadataMap.get("id"),
+        convertToDate((String) metadataMap.get("metacard.modified")),
+        metadataMap);
   }
 }

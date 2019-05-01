@@ -870,7 +870,7 @@ public class SyncerTest {
     assertThat(queryRequest.getModifiedAfter(), is(nullValue()));
 
     UpdateRequest updateRequest = updateRequestCaptor.getValue();
-    assertThat(updateRequest.getUpdatedMetadata(), is(Collections.singletonList(metadata)));
+    assertThat(updateRequest.getMetadata(), is(Collections.singletonList(metadata)));
 
     verify(metadata, times(1)).addLineage(SOURCE_NAME);
     verify(metadata, times(1)).addTag(Replication.REPLICATED_TAG);
@@ -951,7 +951,7 @@ public class SyncerTest {
     assertThat(queryRequest.getModifiedAfter(), is(nullValue()));
 
     UpdateRequest updateRequest = updateRequestCaptor.getValue();
-    assertThat(updateRequest.getUpdatedMetadata(), is(Collections.singletonList(metadata)));
+    assertThat(updateRequest.getMetadata(), is(Collections.singletonList(metadata)));
 
     verify(metadata, times(1)).addLineage(SOURCE_NAME);
     verify(metadata, times(1)).addTag(Replication.REPLICATED_TAG);

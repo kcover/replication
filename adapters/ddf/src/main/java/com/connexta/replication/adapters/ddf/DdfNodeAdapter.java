@@ -277,7 +277,7 @@ public class DdfNodeAdapter extends AbstractCswStore implements NodeAdapter {
 
   @Override
   public boolean updateRequest(UpdateRequest updateRequest) {
-    List<Metacard> metacards = getMetacards(updateRequest.getUpdatedMetadata());
+    List<Metacard> metacards = getMetacards(updateRequest.getMetadata());
     String[] ids = new String[metacards.size()];
 
     for (int i = 0; i < metacards.size(); i++) {
@@ -335,9 +335,8 @@ public class DdfNodeAdapter extends AbstractCswStore implements NodeAdapter {
   public ResourceResponse readResource(ResourceRequest resourceRequest) {
     Metadata metadata = resourceRequest.getMetadata();
 
-    Metacard metacard = (Metacard) metadata.getRawMetadata();
-    String id = metacard.getId();
-    URI uri = metacard.getResourceURI();
+    String id = metadata.getId();
+    URI uri = metadata.getResourceUri();
 
     Map<String, Serializable> properties = new HashMap<>();
     properties.put(Core.ID, id);
@@ -364,17 +363,13 @@ public class DdfNodeAdapter extends AbstractCswStore implements NodeAdapter {
 
   @Override
   public boolean createResource(CreateStorageRequest createStorageRequest) {
-    List<ContentItem> contentItems =
-        createStorageRequest
-            .getResources()
-            .stream()
-            .map(this::toContentItem)
-            .collect(Collectors.toList());
+    List<org.codice.ditto.replication.api.data.Resource> resources =
+        createStorageRequest.getResources();
 
     DdfRestClient client = ddfRestClientFactory.create(hostUrl.toString());
 
-    for (ContentItem contentItem : contentItems) {
-      javax.ws.rs.core.Response response = client.post(contentItem);
+    for (org.codice.ditto.replication.api.data.Resource resource : resources) {
+      javax.ws.rs.core.Response response = client.post(resource);
       if (response != null
           && !response
               .getStatusInfo()
@@ -389,18 +384,13 @@ public class DdfNodeAdapter extends AbstractCswStore implements NodeAdapter {
 
   @Override
   public boolean updateResource(UpdateStorageRequest updateStorageRequest) {
-    List<ContentItem> contentItems =
-        updateStorageRequest
-            .getResources()
-            .stream()
-            .map(this::toContentItem)
-            .collect(Collectors.toList());
+    List<org.codice.ditto.replication.api.data.Resource> resources =
+        updateStorageRequest.getResources();
 
     DdfRestClient client = ddfRestClientFactory.create(hostUrl.toString());
 
-    for (ContentItem contentItem : contentItems) {
-      javax.ws.rs.core.Response response =
-          client.post(contentItem, contentItem.getMetacard().getId());
+    for (org.codice.ditto.replication.api.data.Resource resource : resources) {
+      javax.ws.rs.core.Response response = client.put(resource);
       if (response != null
           && !response
               .getStatusInfo()

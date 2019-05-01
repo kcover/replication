@@ -16,6 +16,7 @@ package org.codice.ditto.replication.api.data;
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -106,4 +107,6 @@ public interface Metadata {
 
   /** @param isDeleted whether or not this metadata should be considered deleted */
   void setIsDeleted(boolean isDeleted);
+
+  Map<String, Object> getMap();
 }

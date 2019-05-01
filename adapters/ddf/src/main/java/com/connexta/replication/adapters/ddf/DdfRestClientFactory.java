@@ -14,19 +14,15 @@
 package com.connexta.replication.adapters.ddf;
 
 import com.google.common.annotations.VisibleForTesting;
-import ddf.catalog.content.data.ContentItem;
-import ddf.catalog.data.BinaryContent;
-import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transform.MetacardTransformer;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -38,6 +34,8 @@ import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.endpoints.rest.RESTService;
 import org.codice.ddf.security.common.Security;
+import org.codice.ditto.replication.api.data.Metadata;
+import org.codice.ditto.replication.api.data.Resource;
 
 /** Factory for creating a basic client capable of posting resources to the DDF REST endpoint. */
 public class DdfRestClientFactory {
@@ -46,23 +44,16 @@ public class DdfRestClientFactory {
 
   private static final String DEFAULT_REST_ENDPOINT = "/catalog";
 
-  private final MetacardTransformer xmlMetacardTransformer;
-
   private final ClientFactoryFactory clientFactoryFactory;
 
   private final Security security;
 
-  public DdfRestClientFactory(
-      ClientFactoryFactory clientFactoryFactory, MetacardTransformer xmlMetacardTransformer) {
-    this(clientFactoryFactory, xmlMetacardTransformer, Security.getInstance());
+  public DdfRestClientFactory(ClientFactoryFactory clientFactoryFactory) {
+    this(clientFactoryFactory, Security.getInstance());
   }
 
   @VisibleForTesting
-  public DdfRestClientFactory(
-      ClientFactoryFactory clientFactoryFactory,
-      MetacardTransformer xmlMetacardTransformer,
-      Security security) {
-    this.xmlMetacardTransformer = xmlMetacardTransformer;
+  public DdfRestClientFactory(ClientFactoryFactory clientFactoryFactory, Security security) {
     this.clientFactoryFactory = clientFactoryFactory;
     this.security = security;
   }
@@ -87,15 +78,14 @@ public class DdfRestClientFactory {
                         () ->
                             restClientFactory.getWebClientForSubject(security.getSystemSubject())));
 
-    MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
-    headers.add(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA);
-    webClient.headers(headers);
-
+    webClient.type(MediaType.APPLICATION_XML);
     webClient.accept(MediaType.APPLICATION_JSON);
 
     return new DdfRestClient(webClient);
   }
 
+  // TODO: I don't think we've every used one of these clients for more than one request. Can we use
+  // them that way as our code suggests? (DdfNodeAdapter)
   /** A wrapper around the {@link WebClient}. */
   class DdfRestClient {
 
@@ -106,66 +96,99 @@ public class DdfRestClientFactory {
     }
 
     /**
-     * Post new content to the DDF REST endpoint.
+     * Post new metadata to the DDF REST endpoint.
      *
-     * @param contentItem the {@link ContentItem} to post
+     * @param metadata the {@link Metadata} to post
      * @return the response
      */
-    Response post(ContentItem contentItem) {
+    Response post(Metadata metadata) {
+      String rawMetadata = (String) metadata.getRawMetadata();
+      return webClient.post(rawMetadata);
+    }
+
+    /**
+     * Put updated metadata on the DDF REST endpoint.
+     *
+     * @param metadata the {@link Metadata} to put
+     * @return the response
+     */
+    Response put(Metadata metadata) {
+      webClient.path(metadata.getId());
+      String rawMetadata = (String) metadata.getRawMetadata();
+      Response response = webClient.put(rawMetadata);
+      webClient.back(true); // reset path
+      return response;
+    }
+
+    /**
+     * Post new content to the DDF REST endpoint.
+     *
+     * @param resource the {@link Resource} to post
+     * @return the response
+     */
+    Response post(Resource resource) {
       try {
-        MultipartBody multipartBody = createBody(contentItem);
-        return webClient.post(multipartBody);
-      } catch (IOException | CatalogTransformerException e) {
+        MultipartBody multipartBody = createBody(resource);
+        webClient.type(MediaType.MULTIPART_FORM_DATA);
+        Response response = webClient.post(multipartBody);
+        webClient.type(MediaType.APPLICATION_XML); // return content-type to xml
+        return response;
+      } catch (IOException e) {
         return null;
       }
     }
 
     /**
-     * Post updated content to the DDF REST endpoint.
+     * Put updated content on the DDF REST endpoint.
      *
-     * @param contentItem the updated {@link ContentItem}
-     * @param metacardId the ID of the metadata to update
+     * @param resource the updated {@link Resource}
      * @return the response
      */
-    Response post(ContentItem contentItem, String metacardId) {
+    Response put(Resource resource) {
       try {
-        webClient.replacePath(metacardId);
-        MultipartBody multipartBody = createBody(contentItem);
-        return webClient.post(multipartBody);
-      } catch (IOException | CatalogTransformerException e) {
+        webClient.path(resource.getId());
+        MultipartBody multipartBody = createBody(resource);
+        Response response = webClient.put(multipartBody);
+        webClient.back(true);
+        return response;
+      } catch (IOException e) {
         return null;
       }
     }
 
-    private MultipartBody createBody(ContentItem item)
-        throws IOException, CatalogTransformerException {
+    Response delete(String id) {
+      webClient.path(id);
+      Response response = webClient.delete();
+      webClient.back(true);
+      return response;
+    }
+
+    private MultipartBody createBody(Resource resource) throws IOException {
       List<Attachment> attachments = new ArrayList<>();
-      attachments.add(createParseResourceAttachment(item));
-      attachments.add(createMetadataAttachment(item));
+      attachments.add(createParseResourceAttachment(resource));
+      attachments.add(createMetadataAttachment(resource));
       return new MultipartBody(attachments);
     }
 
-    private Attachment createParseResourceAttachment(ContentItem item) throws IOException {
-      ContentDisposition contentDisposition = createResourceContentDisposition(item.getFilename());
+    private Attachment createParseResourceAttachment(Resource resource) throws IOException {
+      ContentDisposition contentDisposition = createResourceContentDisposition(resource.getName());
 
       MultivaluedMap<String, String> headers = new MetadataMap<>(false, true);
       headers.putSingle(CONTENT_DISPOSITION, contentDisposition.toString());
       headers.putSingle("Content-ID", "parse.resource");
-      headers.putSingle("Content-Type", item.getMimeTypeRawData());
+      headers.putSingle("Content-Type", resource.getMimeType());
 
-      return new Attachment(item.getInputStream(), headers);
+      return new Attachment(resource.getInputStream(), headers);
     }
 
-    private Attachment createMetadataAttachment(ContentItem item)
-        throws CatalogTransformerException {
-      ContentDisposition contentDisposition =
-          createMetadataContentDisposition(item.getMetacard().getId());
+    private Attachment createMetadataAttachment(Resource resource) {
+      ContentDisposition contentDisposition = createMetadataContentDisposition(resource.getId());
 
-      BinaryContent serializedMetacard =
-          xmlMetacardTransformer.transform(item.getMetacard(), Collections.emptyMap());
+      InputStream bais =
+          new ByteArrayInputStream(
+              ((String) resource.getMetadata().getRawMetadata()).getBytes(StandardCharsets.UTF_8));
 
-      return new Attachment(
-          "parse.metadata", serializedMetacard.getInputStream(), contentDisposition);
+      return new Attachment("parse.metadata", bais, contentDisposition);
     }
 
     private ContentDisposition createResourceContentDisposition(String resourceFileName) {

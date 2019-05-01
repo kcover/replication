@@ -19,8 +19,10 @@ import static org.apache.commons.lang3.Validate.notNull;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.codice.ditto.replication.api.data.Metadata;
@@ -48,6 +50,8 @@ public class MetadataImpl implements Metadata {
 
   private boolean isDeleted = false;
 
+  private final Map<String, Object> map;
+
   /**
    * @param metadata the raw metadata to wrap, cannot be null
    * @param type the type of the metadata, cannot be null
@@ -59,6 +63,19 @@ public class MetadataImpl implements Metadata {
     this.type = notNull(type, "Argument type may not be null");
     this.id = notEmpty(id, "Argument id may not be null or empty");
     this.metadataModified = notNull(metadataModified, "Argument metadataModified may not be null");
+    this.map = new HashMap<>();
+
+    this.tags = new HashSet<>();
+    this.lineage = new ArrayList<>();
+  }
+
+  public MetadataImpl(
+      Object metadata, Class type, String id, Date metadataModified, Map<String, Object> map) {
+    this.metadata = notNull(metadata, "Argument metadata may not be null");
+    this.type = notNull(type, "Argument type may not be null");
+    this.id = notEmpty(id, "Argument id may not be null or empty");
+    this.metadataModified = notNull(metadataModified, "Argument metadataModified may not be null");
+    this.map = new HashMap<>(map);
 
     this.tags = new HashSet<>();
     this.lineage = new ArrayList<>();
@@ -144,5 +161,9 @@ public class MetadataImpl implements Metadata {
   @Override
   public void setIsDeleted(boolean isDeleted) {
     this.isDeleted = isDeleted;
+  }
+
+  public Map<String, Object> getMap() {
+    return new HashMap<>(map);
   }
 }

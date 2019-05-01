@@ -34,6 +34,14 @@
       <version>${project.version}</version>
       <scope>compile</scope>
     </dependency>
+
+    <!-- remove -->
+    <dependency>
+      <groupId>replication</groupId>
+      <artifactId>replication-api-impl</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>replication</groupId>
       <artifactId>commons</artifactId>

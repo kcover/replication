@@ -141,8 +141,8 @@ public class GetRecordsResponseConverter implements Converter {
   /**
    * Copies the namespace declarations on the XML element {@code reader} is currently at into {@code
    * context}. The namespace declarations will be available in {@code context} at the key {@link
-   * org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants#NAMESPACE_DECLARATIONS}. The new namespace declarations will be added to any
-   * existing ones already in {@code context}.
+   * org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants#NAMESPACE_DECLARATIONS}. The new
+   * namespace declarations will be added to any existing ones already in {@code context}.
    *
    * @param reader the reader currently at the XML element with namespace declarations you want to
    *     copy

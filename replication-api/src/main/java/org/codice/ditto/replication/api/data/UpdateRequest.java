@@ -26,5 +26,5 @@ public interface UpdateRequest {
    *
    * @return the list of {@link Metadata}
    */
-  List<Metadata> getUpdatedMetadata();
+  List<Metadata> getMetadata();
 }
