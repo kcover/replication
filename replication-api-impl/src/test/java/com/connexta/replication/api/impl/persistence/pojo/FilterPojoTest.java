@@ -19,7 +19,8 @@ import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Before;
+import com.jparams.verifier.tostring.NameStyle;
+import com.jparams.verifier.tostring.ToStringVerifier;
 import org.junit.Test;
 
 public class FilterPojoTest {
@@ -32,12 +33,9 @@ public class FilterPojoTest {
 
   private static final String DESCRIPTION = "description";
 
-  private FilterPojo filterPojo;
+  private static final byte PRIORITY = 2;
 
-  @Before
-  public void setup() {
-    filterPojo = makeDefaultPojo();
-  }
+  private FilterPojo filterPojo = makeDefaultPojo();
 
   @Test
   public void gettersAndSetters() {
@@ -46,6 +44,7 @@ public class FilterPojoTest {
     assertThat(filterPojo.getName(), is(NAME));
     assertThat(filterPojo.getDescription(), is(DESCRIPTION));
     assertThat(filterPojo.isSuspended(), is(true));
+    assertThat(filterPojo.getPriority(), is(PRIORITY));
   }
 
   @Test
@@ -105,6 +104,13 @@ public class FilterPojoTest {
   }
 
   @Test
+  public void equalsWithDifferentPriority() {
+    FilterPojo filterPojo2 = makeDefaultPojo().setPriority((byte) 5);
+    assertFalse(filterPojo.equals(filterPojo2));
+    assertFalse(filterPojo2.equals(filterPojo));
+  }
+
+  @Test
   public void equalsWithDifferentObject() {
     assertFalse(filterPojo.equals(new Object()));
   }
@@ -120,12 +126,8 @@ public class FilterPojoTest {
   @Test
   public void testToString() {
     filterPojo.setId("1234");
-    assertThat(
-        filterPojo.toString(),
-        is(
-            String.format(
-                "FilterPojo[id=%s, version=%s, siteId=%s, filter=%s, name=%s, description=%s]",
-                "1234", 1, SITE_ID, FILTER, NAME, DESCRIPTION)));
+
+    ToStringVerifier.forClass(FilterPojo.class).withClassName(NameStyle.SIMPLE_NAME).verify();
   }
 
   private FilterPojo makeDefaultPojo() {
@@ -134,6 +136,7 @@ public class FilterPojoTest {
         .setFilter(FILTER)
         .setName(NAME)
         .setDescription(DESCRIPTION)
-        .setSuspended(true);
+        .setSuspended(true)
+        .setPriority(PRIORITY);
   }
 }

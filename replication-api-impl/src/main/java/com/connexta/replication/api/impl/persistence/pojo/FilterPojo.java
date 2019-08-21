@@ -31,13 +31,16 @@ public class FilterPojo extends Pojo<FilterPojo> {
    */
   public static final int CURRENT_VERSION = 1;
 
+  /** The oldest version supported by the current code (anything before that will fail). */
+  public static final int MINIMUM_VERSION = 1;
+
   public static final String COLLECTION = "replication_filter";
 
   @Indexed(name = "site_id")
   @Nullable
   private String siteId;
 
-  @Indexed(name = "filter")
+  @Indexed(name = "filter", searchable = false)
   @Nullable
   private String filter;
 
@@ -45,12 +48,15 @@ public class FilterPojo extends Pojo<FilterPojo> {
   @Nullable
   private String name;
 
-  @Indexed(name = "description")
+  @Indexed(name = "description", searchable = false)
   @Nullable
   private String description;
 
-  @Indexed(name = "suspended")
+  @Indexed(name = "suspended", searchable = false)
   private boolean suspended;
+
+  @Indexed(name = "priority", searchable = false, type = "pint")
+  private byte priority;
 
   /** Instantiates a default filter pojo set with the current version. */
   public FilterPojo() {
@@ -73,7 +79,7 @@ public class FilterPojo extends Pojo<FilterPojo> {
    * @param siteId the id of the site to associate with this filter.
    * @return this for chaining
    */
-  public FilterPojo setSiteId(String siteId) {
+  public FilterPojo setSiteId(@Nullable String siteId) {
     this.siteId = siteId;
     return this;
   }
@@ -94,7 +100,7 @@ public class FilterPojo extends Pojo<FilterPojo> {
    * @param filter the query text to give this filter
    * @return this for chaining
    */
-  public FilterPojo setFilter(String filter) {
+  public FilterPojo setFilter(@Nullable String filter) {
     this.filter = filter;
     return this;
   }
@@ -115,7 +121,7 @@ public class FilterPojo extends Pojo<FilterPojo> {
    * @param name the name to give this filter
    * @return this for chaining
    */
-  public FilterPojo setName(String name) {
+  public FilterPojo setName(@Nullable String name) {
     this.name = name;
     return this;
   }
@@ -136,24 +142,24 @@ public class FilterPojo extends Pojo<FilterPojo> {
    * @param description the description to give this filter
    * @return this for chaining
    */
-  public FilterPojo setDescription(String description) {
+  public FilterPojo setDescription(@Nullable String description) {
     this.description = description;
     return this;
   }
 
   /**
-   * Gets the suspended status of this config.
+   * Gets the suspended status of this filter.
    *
-   * @return the suspended status of this config
+   * @return the suspended status of this filter
    */
   public boolean isSuspended() {
     return suspended;
   }
 
   /**
-   * Sets the suspended status of this config.
+   * Sets the suspended status of this filter.
    *
-   * @param suspended the suspended status to give this config
+   * @param suspended the suspended status to give this filter
    * @return this for chaining
    */
   public FilterPojo setSuspended(boolean suspended) {
@@ -161,9 +167,29 @@ public class FilterPojo extends Pojo<FilterPojo> {
     return this;
   }
 
+  /**
+   * Gets the priority of this filter.
+   *
+   * @return the priority of this filter
+   */
+  public byte getPriority() {
+    return priority;
+  }
+
+  /**
+   * Sets the priority of this filter.
+   *
+   * @param priority the priority to give this filter
+   * @return this for chaining
+   */
+  public FilterPojo setPriority(byte priority) {
+    this.priority = priority;
+    return this;
+  }
+
   @Override
   public int hashCode() {
-    return Objects.hash(super.hashCode(), siteId, filter, name, description, suspended);
+    return Objects.hash(super.hashCode(), siteId, filter, name, description, suspended, priority);
   }
 
   @Override
@@ -172,6 +198,7 @@ public class FilterPojo extends Pojo<FilterPojo> {
       final FilterPojo pojo = (FilterPojo) obj;
 
       return (suspended == pojo.suspended)
+          && (priority == pojo.priority)
           && Objects.equals(siteId, pojo.siteId)
           && Objects.equals(filter, pojo.filter)
           && Objects.equals(name, pojo.name)
@@ -183,7 +210,7 @@ public class FilterPojo extends Pojo<FilterPojo> {
   @Override
   public String toString() {
     return String.format(
-        "FilterPojo[id=%s, version=%s, siteId=%s, filter=%s, name=%s, description=%s]",
-        getId(), getVersion(), siteId, filter, name, description);
+        "FilterPojo[id=%s, version=%s, siteId=%s, filter=%s, name=%s, description=%s, suspended=%s, priority=%s]",
+        getId(), getVersion(), siteId, filter, name, description, suspended, priority);
   }
 }

@@ -56,7 +56,7 @@ public class FilterManagerImpl implements FilterManager {
       filterRepository.save(((FilterImpl) filter).writeTo(new FilterPojo()));
     } else {
       throw new IllegalArgumentException(
-          "Expected a ReplicatorConfigImpl but got a " + filter.getClass().getSimpleName());
+          "Expected a FilterImpl but got a " + filter.getClass().getSimpleName());
     }
   }
 

@@ -67,6 +67,9 @@ public class FilterRepositoryIntegrationTest {
   private static final boolean SUSPENDED = true;
   private static final boolean SUSPENDED2 = false;
   private static final boolean SUSPENDED3 = true;
+  private static final byte PRIORITY = 2;
+  private static final byte PRIORITY2 = 3;
+  private static final byte PRIORITY3 = 4;
 
   private static final FilterPojo POJO =
       new FilterPojo()
@@ -76,7 +79,8 @@ public class FilterRepositoryIntegrationTest {
           .setFilter(FILTER)
           .setName(NAME)
           .setDescription(DESCRIPTION)
-          .setSuspended(SUSPENDED);
+          .setSuspended(SUSPENDED)
+          .setPriority(PRIORITY);
   private static final FilterPojo POJO2 =
       new FilterPojo()
           .setId(ID2)
@@ -85,7 +89,8 @@ public class FilterRepositoryIntegrationTest {
           .setFilter(FILTER2)
           .setName(NAME2)
           .setDescription(DESCRIPTION2)
-          .setSuspended(SUSPENDED2);
+          .setSuspended(SUSPENDED2)
+          .setPriority(PRIORITY2);
   private static final FilterPojo POJO3 =
       new FilterPojo()
           .setId(ID3)
@@ -94,7 +99,8 @@ public class FilterRepositoryIntegrationTest {
           .setFilter(FILTER3)
           .setName(NAME3)
           .setDescription(DESCRIPTION3)
-          .setSuspended(SUSPENDED3);
+          .setSuspended(SUSPENDED3)
+          .setPriority(PRIORITY3);
 
   @TestConfiguration
   @EnableSolrRepositories(basePackages = "com.connexta.replication")
@@ -131,7 +137,8 @@ public class FilterRepositoryIntegrationTest {
             .setFilter(FILTER)
             .setName(NAME)
             .setDescription(DESCRIPTION)
-            .setSuspended(SUSPENDED);
+            .setSuspended(SUSPENDED)
+            .setPriority(PRIORITY);
 
     repo.save(pojo);
   }
@@ -145,7 +152,8 @@ public class FilterRepositoryIntegrationTest {
             .setFilter(FILTER)
             .setName(NAME)
             .setDescription(DESCRIPTION)
-            .setSuspended(SUSPENDED);
+            .setSuspended(SUSPENDED)
+            .setPriority(PRIORITY);
 
     final FilterPojo saved = repo.save(pojo);
     assertThat(saved, equalTo(pojo));
@@ -163,7 +171,8 @@ public class FilterRepositoryIntegrationTest {
             .setSiteId(SITE_ID)
             .setName(NAME)
             .setDescription(DESCRIPTION)
-            .setSuspended(SUSPENDED);
+            .setSuspended(SUSPENDED)
+            .setPriority(PRIORITY);
 
     final FilterPojo saved = repo.save(pojo);
     assertThat(saved, equalTo(pojo));
@@ -181,7 +190,8 @@ public class FilterRepositoryIntegrationTest {
             .setSiteId(SITE_ID)
             .setFilter(FILTER)
             .setDescription(DESCRIPTION)
-            .setSuspended(SUSPENDED);
+            .setSuspended(SUSPENDED)
+            .setPriority(PRIORITY);
 
     final FilterPojo saved = repo.save(pojo);
     assertThat(saved, equalTo(pojo));
@@ -199,7 +209,8 @@ public class FilterRepositoryIntegrationTest {
             .setSiteId(SITE_ID)
             .setFilter(FILTER)
             .setName(NAME)
-            .setSuspended(SUSPENDED);
+            .setSuspended(SUSPENDED)
+            .setPriority(PRIORITY);
 
     final FilterPojo saved = repo.save(pojo);
     assertThat(saved, equalTo(pojo));
@@ -359,10 +370,21 @@ public class FilterRepositoryIntegrationTest {
   @Test
   public void testFindBySiteId() {
     repo.save(POJO);
-    repo.save(POJO2);
+    FilterPojo pojo2WithSiteId1 =
+        new FilterPojo()
+            .setId(ID2)
+            .setVersion(VERSION2)
+            .setSiteId(SITE_ID)
+            .setFilter(FILTER2)
+            .setName(NAME2)
+            .setDescription(DESCRIPTION2)
+            .setSuspended(SUSPENDED2)
+            .setPriority(PRIORITY2);
+    repo.save(pojo2WithSiteId1);
+    repo.save(POJO3);
 
     Iterable<FilterPojo> results = repo.findBySiteId(SITE_ID);
-    assertThat(results, contains(POJO));
-    assertThat(results, not(contains(POJO2)));
+    assertThat(results, containsInAnyOrder(POJO, pojo2WithSiteId1));
+    assertThat(results, not(contains(POJO3)));
   }
 }

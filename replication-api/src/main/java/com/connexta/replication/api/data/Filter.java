@@ -13,9 +13,12 @@
  */
 package com.connexta.replication.api.data;
 
-import javax.annotation.Nullable;
+import java.util.Optional;
 
-/** A filter for retrieving data from a specific site. */
+/**
+ * A filter describing what data to replicate to a site. A site can have multiple filters associated
+ * with it to describe what data it would like to receive.
+ */
 public interface Filter extends Persistable {
 
   /**
@@ -42,15 +45,21 @@ public interface Filter extends Persistable {
   /**
    * Gets the description of this filter. Can be null.
    *
-   * @return the dexcription of this filter
+   * @return the description of this filter or empty if no description was set
    */
-  @Nullable
-  String getDescription();
+  Optional<String> getDescription();
 
   /**
    * Gets the suspended status of this filter.
    *
-   * @return the suspended status of this filter
+   * @return true if replications using this filter should be suspended, otherwise false
    */
   boolean isSuspended();
+
+  /**
+   * Gets the priority level of this filter, represented as a number between 1 and 10.
+   *
+   * @return the priority level of this filter
+   */
+  byte getPriority();
 }

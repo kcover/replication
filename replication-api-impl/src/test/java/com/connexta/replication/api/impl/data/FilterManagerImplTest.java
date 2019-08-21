@@ -16,8 +16,9 @@ package com.connexta.replication.api.impl.data;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,12 +28,11 @@ import com.connexta.replication.api.impl.persistence.pojo.FilterPojo;
 import com.connexta.replication.api.impl.persistence.spring.FilterRepository;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FilterManagerImplTest {
@@ -46,6 +46,8 @@ public class FilterManagerImplTest {
   private static final String NAME = "name";
 
   private static final String DESCRIPTION = "description";
+
+  private static final byte PRIORITY = 2;
 
   @Mock private FilterRepository filterRepository;
 
@@ -67,9 +69,10 @@ public class FilterManagerImplTest {
     Filter filter = filterManager.get(ID);
     assertThat(filter.getId(), is(ID));
     assertThat(filter.getSiteId(), is(SITE_ID));
-    assertThat(filter.getDescription(), is(DESCRIPTION));
+    assertThat(filter.getDescription().get(), is(DESCRIPTION));
     assertThat(filter.getFilter(), is(FILTER));
     assertThat(filter.getName(), is(NAME));
+    assertThat(filter.getPriority(), is(PRIORITY));
   }
 
   @Test(expected = NotFoundException.class)
@@ -84,9 +87,10 @@ public class FilterManagerImplTest {
     Filter filter = filterManager.objects().findFirst().orElse(null);
     assertThat(filter.getId(), is(ID));
     assertThat(filter.getSiteId(), is(SITE_ID));
-    assertThat(filter.getDescription(), is(DESCRIPTION));
+    assertThat(filter.getDescription().get(), is(DESCRIPTION));
     assertThat(filter.getFilter(), is(FILTER));
     assertThat(filter.getName(), is(NAME));
+    assertThat(filter.getPriority(), is(PRIORITY));
   }
 
   @Test
@@ -98,7 +102,8 @@ public class FilterManagerImplTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void saveIllegalObject() {
-    filterManager.save(new TestFilter());
+    Filter testFilter = mock(Filter.class);
+    filterManager.save(testFilter);
   }
 
   @Test
@@ -113,9 +118,10 @@ public class FilterManagerImplTest {
     Filter filter = filterManager.filtersForSite(SITE_ID).findFirst().orElse(null);
     assertThat(filter.getId(), is(ID));
     assertThat(filter.getSiteId(), is(SITE_ID));
-    assertThat(filter.getDescription(), is(DESCRIPTION));
+    assertThat(filter.getDescription().get(), is(DESCRIPTION));
     assertThat(filter.getFilter(), is(FILTER));
     assertThat(filter.getName(), is(NAME));
+    assertThat(filter.getPriority(), is(PRIORITY));
   }
 
   private FilterPojo makeDefaultPojo() {
@@ -126,40 +132,7 @@ public class FilterManagerImplTest {
         .setFilter(FILTER)
         .setName(NAME)
         .setDescription(DESCRIPTION)
-        .setSuspended(true);
-  }
-
-  private static class TestFilter implements Filter {
-
-    @Override
-    public String getSiteId() {
-      return null;
-    }
-
-    @Override
-    public String getFilter() {
-      return null;
-    }
-
-    @Override
-    public String getName() {
-      return null;
-    }
-
-    @Nullable
-    @Override
-    public String getDescription() {
-      return null;
-    }
-
-    @Override
-    public boolean isSuspended() {
-      return false;
-    }
-
-    @Override
-    public String getId() {
-      return null;
-    }
+        .setSuspended(true)
+        .setPriority(PRIORITY);
   }
 }
